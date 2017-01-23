@@ -1,0 +1,25 @@
+{
+  "name": "invest",
+  "version": "1.0.0",
+  "description": "Stock Data Analysis Tool",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.14.0",
+    "body-parser": "^1.15.2",
+    "forever": "^0.15.3",
+    "gfinance": "^0.0.5",
+    "moment": "^2.17.1",
+    "google-finance": "^0.1.9",
+    "request": "^2.79.0",
+    "strftime": "^0.10.0",
+    "quoth": "^1.0.3",
+    "path": "^0.12.7",
+    "yahoo-finance": "^0.2.16"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "forever start app.js"
+  },
+  "author": "Jordan Gidman",
+  "license": "MIT"
+}

@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard</title>
+
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<!-- <link href="css/datepicker3.css" rel="stylesheet"> -->
+<link href="css/styles.css" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!-- <script src='/js/jquery-1.11.1.min.js'></script> -->
+
+<!--Icons-->
+<script src="/js/lumino.glyphs.js"></script>
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+
+<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+
+<!--[if lt IE 9]>
+<script src="js/html5shiv.js"></script>
+<script src="js/respond.min.js"></script>
+<![endif]-->
+<script type='text/javascript'>
+
+$(document).ready(function(){
+	var user,pass;
+	$("#searchButton").click(function(){
+		user=document.getElementById('searchInput').value;
+
+		$.post("/advQuery",{user: user}, function(data){
+				console.log(data);
+				var a = data;
+				document.getElementById('abc').innerHTML = '';
+				for(x = 0; x < a.length; x++){
+					//console.log(a);
+					//var element = document.createElement("br");
+					//document.getElementById('abc').appendChild(element);
+					document.getElementById('abc').innerHTML += '<br>' + 'Title: ' + a[x].title + '<br>' + 'Date: ' + a[x].date + '<br>' + 'Description: '+ a[x].description + '<br>' + a[x].link + '<br><hr>';
+
+					//document.write(a[x].description);
+				}
+				hist(user);
+		});
+	});
+});
+
+function hist(symbol){
+
+	$.post("/advQueryHist",{user: symbol}, function(data){
+			console.log(data);
+			var a = data;
+			document.getElementById('stockinfo').innerHTML = '';
+			for(x = 0; x < a.length; x++){
+				document.getElementById('stockinfo').innerHTML += '<br>' + 'Symbol: ' + a[x].symbol + '<br>' + 'Date: ' + a[x].date.substring(0, 10) + '<br>' + 'Open: ' + a[x].open + '<br>' + 'High: ' + a[x].high + '<br>' + 'Low: ' + a[x].low + '<br>' + 'Close: ' + a[x].close + '<br>' + 'Volume: ' + a[x].volume + '<br><hr>';
+			}
+
+			var a = symbol;
+
+			$(function () {
+			var url = "'http://real-chart.finance.yahoo.com/table.csv?s=GOOG&d=1&e=6&f=2017&g=d&a=1&b=1&c=2009&ignore=.csv'".replace("GOOG", a);
+			    $.getJSON("https://query.yahooapis.com/v1/public/yql?q=" + encodeURIComponent("select Date, Open, High, Low, Close from csv where url="+url+" and columns='Date,Open,High,Low,Close,Volume,Adj Close'") + "&format=json&callback=?", function (data) {
+			//$.getJSON("https://query.yahooapis.com/v1/public/yql?q=" + encodeURIComponent("select Date, Open, High, Low, Close from csv where url='http://real-chart.finance.yahoo.com/table.csv?s=GOOG&d=11&e=12&f=2015&g=d&a=1&b=1&c=2009&ignore=.csv' and columns='Date,Open,High,Low,Close,Volume,Adj Close'") + "&format=json&callback=?", function (data) {
+			        //console.log(data.query.results);
+			        var data = data.query.results.row;
+			        data = data.splice(1, data.length);
+			        //console.log(data);
+
+			        var processedData = [];
+			        $(data).each(function(index, value) {
+			           //console.log(Date.parse(value.Date).getTime());
+			           //console.log(Date.parse(value.Date));
+			            processedData.push([Date.parse(value.Date), parseFloat(value.Open), parseFloat(value.High), parseFloat(value.Low), parseFloat(value.Close)]);
+			        });
+			        processedData = processedData.reverse();
+			        //console.log(processedData);
+
+			        // Create the chart
+			        $('#container').highcharts('StockChart', {
+
+
+			            rangeSelector : {
+			                selected : 1
+			            },
+
+			            title : {
+			                text : ''+a+' Stock Price'
+			            },
+
+			            series : [{
+			                type : 'candlestick',
+			                name : ''+a+' Stock Price',
+			                data : processedData,
+			                tooltip: {
+			                    valueDecimals: 2
+			                }
+			            }]
+			        });
+			    });
+
+			});
+
+
+
+
+
+
+			new Markit.TimeseriesService(symbol, 365);
+
+	});
+}
+$.ajax({
+  url: "/hist",
+  context: document.body
+}).success(function(data){
+	var a = data;
+	for(x = 0; x < a.length; x++){
+		document.getElementById('stockinfo').innerHTML += '<br>' + 'Symbol: ' + a[x].symbol + '<br>' + 'Date: ' + a[x].date + '<br>' + 'Open: ' + a[x].open + '<br>' + 'High: ' + a[x].high + '<br>' + 'Low: ' + a[x].low + '<br>' + 'Close: ' + a[x].close + '<br>' + 'Volume: ' + a[x].volume;
+	}
+
+}).done(function() {
+  $( this ).addClass( "done" );
+});
+
+
+	$.ajax({
+		  url: "/news",
+		  context: document.body
+		}).success(function(data){
+			var a = data;
+			for(x = 0; x < a.length; x++){
+				//console.log(a);
+				//var element = document.createElement("br");
+				//document.getElementById('abc').appendChild(element);
+				document.getElementById('abc').innerHTML += '<br>' + 'Title: ' + a[x].title + '<br>' + 'Date: ' + a[x].date + '<br>' + 'Description: '+ a[x].description + '<br>' + a[x].link + '<br>';
+
+				//document.write(a[x].description);
+			}
+
+		}).done(function() {
+
+		});
+
+//https://query2.finance.yahoo.com/v7/finance/chart/GOOG?range=5d&interval=5m&indicators=quote&includeTimestamps=true&includePrePost=false&corsDomain=finance.yahoo.com
+
+</script>
+
+<script>
+
+    var Markit = {};
+
+    Markit.TimeseriesService = function(symbol,duration){
+        this.symbol = symbol;
+        this.duration = duration;
+        this.PlotChart();
+    };
+
+    Markit.TimeseriesService.prototype.PlotChart = function(){
+
+
+        $.ajax({
+            beforeSend:function(){
+                $("#chartDemoContainer").text("Loading chart...");
+            },
+            data: {
+                symbol: this.symbol,
+                duration: this.duration
+            },
+            url: "http://dev.markitondemand.com/Api/Timeseries/jsonp",
+            dataType: "jsonp",
+            context: this,
+            success: function(json){
+
+    if (!json.Data || json.Message){
+    console.error("Error: ", json.Message);
+    return;
+    }
+                this.BuildDataAndChart(json);
+            },
+            error: function(){
+                alert("Couldn't generate chart.");
+            }
+        });
+    };
+
+    Markit.TimeseriesService.prototype.BuildDataAndChart = function(json){
+        var dateDS = json.Data.SeriesDates,
+            closeDS = json.Data.Series.close.values,
+            openDS = json.Data.Series.open.values,
+            closeDSLen = closeDS.length,
+            irregularIntervalDS = [];
+
+
+        for (var i=0; i<closeDSLen;i++){
+            var dat = new Date(dateDS[i]);
+            var dateIn = Date.UTC(dat.getFullYear(), dat.getMonth(), dat.getDate());
+            var val = closeDS[i];
+            irregularIntervalDS.push([dateIn,val]);
+        }
+
+
+        this.oChartOptions.series[0].data = irregularIntervalDS;
+        this.oChartOptions.title.text = "Price History of " + json.Data.Name + " (1 year)";
+
+
+        new Highcharts.Chart(this.oChartOptions);
+    };
+
+
+    Markit.TimeseriesService.prototype.oChartOptions = {
+    chart: {
+    renderTo: 'chartDemoContainer'
+    },
+    title:{},
+    subtitle: {
+    text: 'JG - Invest'
+    },
+    xAxis: {
+    type: 'datetime'
+    },
+    yAxis: [{
+    title: {
+    text: null
+    },
+    labels: {
+    align: 'left',
+    x: 3,
+    y: 16,
+    formatter: function() {
+    return Highcharts.numberFormat(this.value, 0);
+    }
+    },
+    showFirstLabel: false
+    }, {
+    linkedTo: 0,
+    gridLineWidth: 0,
+    opposite: true,
+    title: {
+    text: null
+    },
+    labels: {
+    align: 'right',
+    x: -3,
+    y: 16,
+    formatter: function() {
+    return Highcharts.numberFormat(this.value, 0);
+    }
+    },
+    showFirstLabel: false
+    }],
+    tooltip: {
+    shared: true,
+    crosshairs: true
+    },
+    plotOptions: {
+
+		series: {
+                    cursor: 'pointer',
+                    point: {
+                        events: {
+                            click: function (e) {
+                                console.log(Highcharts.dateFormat('%Y-%m-%d', this.x));
+																var a = Highcharts.dateFormat('%Y-%m-%d', this.x);
+																var user=document.getElementById('searchInput').value;
+																$.post("/advNews",{user: user, time: a}, function(data){
+																		console.log(data);
+																		var a = data;
+																		document.getElementById('abc').innerHTML = '';
+																		for(x = 0; x < a.length; x++){
+																			//console.log(a);
+																			//var element = document.createElement("br");
+																			//document.getElementById('abc').appendChild(element);
+																			document.getElementById('abc').innerHTML += '<br>' + 'Title: ' + a[x].title + '<br>' + 'Date: ' + a[x].date + '<br>' + 'Description: '+ a[x].description + '<br>' + a[x].link + '<br><hr>';
+
+																			//document.write(a[x].description);
+																		}
+																		hist(user);
+																});
+                            }
+                        }
+                    },
+                    marker: {
+                        lineWidth: 1
+                    }
+                }
+    },
+    series: [{
+    name: "Close price",
+    lineWidth: 2,
+    marker: {
+    radius: 0
+    }
+    }]
+
+    };
+
+    new Markit.TimeseriesService("AAPL", 365);
+</script>
+
+</head>
+
+<body>
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#sidebar-collapse">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#"><span>Stock</span>Investor - JG</a>
+			</div>
+
+		</div><!-- /.container-fluid -->
+	</nav>
+
+	<div id="sidebar-collapse" class="col-sm-3 col-lg-2 sidebar">
+		<form role="search">
+			<div class="form-group">
+				<input type="text" style='text-align: center;' class="form-control" id='searchInput' placeholder="Input Stock">
+				<input type='button' id='searchButton' class='btn btn-success btn-block' value='Submit'>
+			</div>
+		</form>
+
+		<ul class="nav menu">
+			<li class="active"><a href="index.html"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg> Dashboard</a></li>
+			<li role="presentation" class="divider"></li>
+		</ul>
+		<div class="col-sm-9 col-sm-offset-2 col-lg-10 col-lg-offset-2 main">
+			<div class="row">
+				<div id='stockinfo'>
+
+				</div>
+
+			</div>
+		</div>
+	</div><!--/.sidebar-->
+
+	<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
+		<div class="row">
+			<ol class="breadcrumb">
+				<li><a href="#"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
+				<li class="active">Home</li>
+			</ol>
+		</div><!--/.row-->
+
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">Dashboard</h1>
+			</div>
+		</div><!--/.row-->
+
+		<div class="row">
+
+		</div><!--/.row-->
+
+		<div class="row">
+
+			<div class="col-lg-12">
+
+				<div class="panel panel-default">
+					<div class="panel-heading">Stock News</div>
+					<div class="panel-body">
+						<div class="canvas-wrapper result" id='abc'>
+
+
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div><!--/.row-->
+
+		<div class="row">
+			<div class="col-md-12">
+
+				<div class="panel panel-default">
+					<div class="panel-heading" id="accordion"> Graph</div>
+					<!-- <svg class="glyph stroked two-messages"><use xlink:href="#stroked-two-messages"></use></svg> -->
+					<div id="chartDemoContainer" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+					<div id="container" style="height: 400px; min-width: 310px"></div>
+
+					<div >
+						<ul>
+
+						</ul>
+					</div>
+
+
+				</div>
+
+			</div><!--/.col-->
+
+			<div class="col-md-4">
+
+
+			</div><!--/.col-->
+		</div><!--/.row-->
+	</div>	<!--/.main-->
+
+</body>
+
+<div id='container'></div>
+<script>
+
+</script>
+
+
+</html>
