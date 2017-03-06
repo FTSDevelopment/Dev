@@ -1,4 +1,4 @@
-"This program allows the user to see information about a stock. By entering at symbol(NASDAQ is the only one supported right now) into the search bar, graphs, stock information, and news will all be displayed. 
+This program allows the user to see information about a stock. By entering at symbol(NASDAQ is the only one supported right now) into the search bar, graphs, stock information, and news will all be displayed. 
 
 <b>
 How To Use : 
