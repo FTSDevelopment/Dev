@@ -7,6 +7,7 @@ How To Use :
 - Install forever in npm
 - cd into directory
 - Run the command : forever start app.js
+- Navigate to : 127.0.0.1:3000 in your web browser
 </b>
 
 - <i>Optionally</i> you can skip the install of the forever module and just run : node app.js
